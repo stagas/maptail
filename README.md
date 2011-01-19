@@ -6,6 +6,9 @@ Run it and visit http://yourhost.com/map
 ### Installation
 
 Clone this repository.
+You'll also need [node.js](http://nodejs.org) installed.
+
+Tested and working with node.js v0.3.1.
 
 ### Usage
 
