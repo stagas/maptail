@@ -29,7 +29,7 @@ var http = require('http')
   , port = process.argv.length >= 4 && process.argv[4] || process.env.PORT || process.env.POLLA_PORT || 8080
   , host = process.argv.length >= 3 && process.argv[3] || process.env.HOST || process.env.POLLA_HOST || 'localhost'
   
-  , wsport = process.env.WSPORT || port + 111
+  , wsport = process.env.WSPORT || + port + 111
   , wshost = process.env.WSHOST || host
   
   , filename = process.argv.length >= 2 && process.argv[2] || 'nohup.out'
