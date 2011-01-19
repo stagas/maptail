@@ -228,7 +228,7 @@ tail.stdout.on('data', function (data) {
       //  "area_code":650
       //  }
       city = geoip.City.record_by_addr(cities, ip)
-      if (typeof city === 'object') {
+      if (city) {
         ips[ip].city = city
         ips[ip].lat = city.latitude
         ips[ip].lng = city.longitude
