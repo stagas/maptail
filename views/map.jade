@@ -1,0 +1,16 @@
+link(rel='stylesheet', href='/css/wargames.css')
+script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js')
+script(src='/js/config.js')
+script(src='http://' + this.wshost + ':' + this.wsport + '/socket.io/socket.io.js')
+script(src='/js/raphael.js')
+script(src='/js/map.js')
+script(src='/js/client.js')
+|	<div id="last-activity">
+|		<span id="channel"></span> had activity <span id="channel-activity">0.00 sec</span> ago
+|		<div id="message-count-container">
+|			<span id="message-count"></span> messages in the last 40min
+|		</div>
+|	</div>
+|	<ul id="messages"></ul>
+|	<ul id="userlist"></ul>
+|	<div id="map"></div>

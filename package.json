@@ -1,0 +1,13 @@
+{ "name" : "maptail"
+, "description" : "maptail geoips your tail -f to a map"
+, "version" : "0.0.1"
+, "author" : "George Stagakis <gstagas@gmail.com> (http://stagas.com/)"
+, "repository" :
+  { "type" : "git"
+  , "url" : "http://github.com/stagas/maptail.git"
+  }
+, "bin" : { "maptail" : "./maptail.js" }
+, "dependencies" :
+  { "helpful" : ">=0.0.3"
+  }
+}

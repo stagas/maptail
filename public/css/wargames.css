@@ -1,0 +1,230 @@
+@font-face {
+	font-family: 'CodenameCoder';
+	src: url('/fonts/codenamecoderfree4f-bold-webfont.eot');
+	src: url('/fonts/codenamecoderfree4f-bold-webfont.woff') format('woff'), url('/fonts/codenamecoderfree4f-bold-webfont.ttf') format('truetype'), url('/fonts/codenamecoderfree4f-bold-webfont.svg#webfontta0ZHvkl') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+html, body
+{
+	margin: 0;
+	padding: 0;
+}
+html
+{
+	background: #000;
+}
+body
+{
+padding:0;
+width:100%;
+height:100%;
+	font-family: 'CodenameCoder';
+	color: #fff;
+	overflow: hidden;
+}
+#map
+{
+	position: relative;
+	-webkit-transition: opacity 1s linear;
+	-moz-transition: opacity 1s linear;
+	-o-transition: opacity 1s linear;
+	opacity: 1;
+}
+#map svg
+{
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+#map.centered
+{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	opacity: 1;	
+}
+#map-image
+{
+	max-width: 100%;
+	max-height: 100%;
+	position: relative;
+	top: 200px;
+}
+#map-canvas
+{
+	max-width: 100%;
+	max-height: 100%;
+	position: absolute;
+	top: 200px;
+	left: 0;
+}
+.marker
+{
+	position: absolute;
+	-webkit-transition: all 0.3s linear;
+	-moz-transition: all 0.3s linear;
+	-o-transition: all 0.3s linear;
+	z-index: 100;
+	cursor: default;
+}
+.marker:hover, .marker.hover
+{
+	z-index: 200;
+	opacity: 1 !important;
+	text-shadow: 0 0 3px #000;
+}
+.marker:hover .meta, .marker.hover .meta
+{
+	opacity: 1 !important;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	
+}
+.meta
+{
+	background: rgba(0,0,0,0.9);
+	font-size: 12px;
+	white-space: nowrap;
+	position: absolute;
+	top: 11px;
+	left: 80%;
+	opacity: 0;
+}
+.lastActivity
+{
+	background: rgba(0,0,0,0.7);
+	font-size: 12px;
+	white-space: nowrap;
+	position: absolute;
+	top: 11px;
+	right: 80%;
+	opacity: 0.8;
+	text-align: right;
+	color: yellow;
+}
+.marker img
+{
+	width: 100%;
+}
+.standard
+{
+	width: 36px;
+	height: 36px;
+	margin: -18px 0 0 -18px;
+	opacity: 1;
+}
+.origin
+{
+	width: 200px;
+	height: 200px;
+	margin: 0 0 0 0;
+	opacity: 0.1;
+}
+.middle
+{
+	width: 36px;
+	height: 36px;
+	margin: -18px 0 0 -18px;
+	opacity: 0.2;
+}
+.dampened
+{
+	opacity: 0.2 !important;
+}
+#userlist
+{
+	position: absolute;
+	top: 20px;
+	left: 20px;
+	background: rgba(0,0,0,0.4);
+	z-index: 200;
+	font-size: 12px;
+	margin: 0;
+	padding: 0;
+	color: #666;
+	letter-spacing: 1px;
+height:65%;
+overflow:hidden;
+}
+#userlist li
+{
+	list-style: none;
+	padding: 4px 0;
+	cursor: help;
+}
+#userlist li:hover
+{
+	color: yellow;
+}
+
+#messages
+{
+display:block;
+width:100%;
+	position: fixed;
+	bottom: 10px;
+	left: 0;
+	background: rgba(0,0,0,0.2);
+	z-index: 200;
+	font-size: 11px;
+	margin: 0;
+	padding: 0;
+word-wrap:break-word;
+}
+a {
+color:inherit;
+}
+#messages:hover li
+{
+	opacity: 0.9 !important;
+}
+#messages li
+{
+	opacity: 0.9;
+  display:block;
+	list-style: none;
+	margin: 0;
+	line-height: 1.0;
+	padding: 2px 0;
+}
+#messages .user
+{
+	color: yellow;
+display:inline-block;
+text-align:right;
+width:7%;
+	padding: 0 5px 0 0;
+}
+#messages .message {
+vertical-align:top;
+display:inline-block;
+width:90%;
+}
+
+#last-activity
+{
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	font-size: 19px;
+	color: #888;
+}
+#last-activity span
+{
+	color: yellow;
+}
+
+#channel
+{
+	color:#fff !important;
+}
+
+#message-count-container
+{
+	padding: 5px 0 0;
+	font-size: 15px;
+	color: #fff;
+}

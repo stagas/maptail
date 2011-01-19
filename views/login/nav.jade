@@ -1,0 +1,9 @@
+ul#login
+  - if (!loggedIn)
+    li
+      a(href='/login?redirect_url=' + encodeURIComponent(redirect_url)) Login
+    li
+      a(href='/signup?redirect_url=' + encodeURIComponent(redirect_url)) Signup
+  - else
+    li
+      a(href='/logout?redirect_url=' + encodeURIComponent(redirect_url)) Logout    

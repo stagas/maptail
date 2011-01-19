@@ -1,0 +1,11 @@
+h1= title
+form(method='post', action='/signup')
+  div.row
+    label(for='username') Username
+    input(name='username', type='text')
+  div.row
+    label(for='password') Password
+    input(name='password', type='text')
+  div(class='row submit')
+    input(value='Enter', type='submit')
+  input(name='redirect_url', value=redirect_url, type='hidden')
