@@ -9,7 +9,7 @@ Clone this repository.
 
 ### Usage
 
-    ./maptail.js <file_to_tail> [host] [port]
+    node maptail.js <file_to_tail> [host] [port]
 
 You also need to download GeoIP City Lite Edition [Download](http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz) 
 and extract it into the repository folder.
