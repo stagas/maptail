@@ -82,7 +82,7 @@ app.get('/map', allow('admin', 'moderator'), expires(false), function(req, res) 
   res.render('map', { layout: 'empty', title: 'tail -f ' + filename })
 })
 
-app.get('/js/config.js', expires(false), function(req, res) {
+app.get('/js/config.js', allow('admin', 'moderator'), expires(false), function(req, res) {
   html = [
     'var WSHOST = "' + wshost + '";'
   + 'var WSPORT = ' + wsport + ';'
@@ -107,9 +107,10 @@ var socket = io.listen(wsserver)
 
 socket.on('connection', function(client) {
   var id = client.sessionId
+    , ip = client && client.request && client.request.socket && client.request.socket.remoteAddress || '000'
 
-  console.dir(client)
-  
+  if (typeof allowedIPs[ip] === 'undefined') return
+
   connected[id] = client
 
   world.sendStartupData(client)  
