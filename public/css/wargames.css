@@ -136,24 +136,26 @@ height:100%;
 }
 #userlist
 {
-	position: absolute;
+	position: fixed;
 	top: 20px;
-	left: 20px;
+	right: 20px;
 	background: rgba(0,0,0,0.4);
-	z-index: 200;
+	z-index: 1000 !important;
 	font-size: 12px;
 	margin: 0;
 	padding: 0;
-	color: #666;
+	color: #555 !important;
 	letter-spacing: 1px;
-height:65%;
+height:auto !important;
 overflow:hidden;
+display:block;
 }
 #userlist li
 {
 	list-style: none;
 	padding: 4px 0;
 	cursor: help;
+text-align:center;
 }
 #userlist li:hover
 {
@@ -208,7 +210,7 @@ width:90%;
 {
 	position: fixed;
 	top: 20px;
-	right: 20px;
+	left: 20px;
 	font-size: 19px;
 	color: #888;
 }

@@ -180,6 +180,8 @@ var world = {
       var user = self.users[name]
       if (user.lat && user.lastActivity > activityLimit) {
         userList[name] = self.getPublicUserInfo(user)
+      } else {
+        delete self.users[name]
       }
     })
 
@@ -203,6 +205,9 @@ tail.stdout.on('data', function (data) {
   var dataStr = data.toString()
   
   dataStr.replace(/([^\n]+)\n/g, function(m, line) {
+    // proxy tail
+    console.log(line)
+  
     var ipsArray = line.match(/(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm) || []
       , ips = {}
       , ipsplit = []
