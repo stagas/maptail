@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * ./maptail.js <file_to_tail> [hostname] [port]
+ * node maptail.js <file_to_tail> [hostname] [port]
  */
 
 var http = require('http')
@@ -127,7 +127,7 @@ var world = {
 , getPublicUserInfo: function(user) {
     return {
       'name': user.name
-    , 'country': user.city.country_name
+    , 'city': user.city
     , 'lng': user.lng
     , 'lat': user.lat
     , 'lastActivity': user.lastActivity
@@ -139,7 +139,7 @@ var world = {
 
     self.messages.push({
 	    'user': from.name
-    , 'country': from.city.country_name
+    , 'city': from.city
 	  , 'message': from.line
 		})
 
@@ -203,11 +203,18 @@ tail.stdout.on('data', function (data) {
   var dataStr = data.toString()
   
   dataStr.replace(/([^\n]+)\n/g, function(m, line) {
-    // lame ip regexp please someone patch this
-    var ipsArray = line.match(/([0-2]?[0-9]{1,2}\.[0-2]?[0-9]{1,2}\.[0-2]?[0-9]{1,2}\.[0-2]?[0-9]{1,2})/gm) || []
+    var ipsArray = line.match(/(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm) || []
       , ips = {}
+      , ipsplit = []
     
     ipsArray.forEach(function(ip) {
+      // no version numbers
+      ipsplit = ip.split('.')
+      for (var i = 0, c = 0; i < ipsplit.length; i++) {
+        if (ipsplit[i] < 10) c++
+        if (c === 3) return
+      }
+      
       ips[ip] = { name: ip, line: helpful.htmlspecialchars(line), lastActivity: Date.now() }
     })
 
@@ -227,18 +234,23 @@ tail.stdout.on('data', function (data) {
       //  "metro_code":807,
       //  "area_code":650
       //  }
-      city = geoip.City.record_by_addr(cities, ip)
-      if (city) {
-        ips[ip].city = city
-        ips[ip].lat = city.latitude
-        ips[ip].lng = city.longitude
-
-        world.messageCount++
-        world.users[ip] = ips[ip]
-        
-        world.sendUpdate(ips[ip])
-      } else {
-        log('Could not grab location for', ip, ' - ', city)
+      if (typeof ips[ip].city === 'undefined') {
+        city = geoip.City.record_by_addr(cities, ip)
+        if (city) {
+          ips[ip].city = city
+          ips[ip].lat = city.latitude
+          ips[ip].lng = city.longitude
+          
+          world.messageCount++
+          world.users[ip] = ips[ip]
+          
+          world.sendUpdate(ips[ip])
+        } else {
+          ips[ip].city = {}
+          ips[ip].lat = 0
+          ips[ip].lng = 0
+          log('Could not grab location for', ip, ' - ', city)
+        }
       }
     }
   })

@@ -169,16 +169,16 @@
 				var x = coords.x;
 				var y = coords.y;
 
-				var $marker = $('<div data-activity="' + user.lastActivity + '" class="marker origin"><div class="meta">' + (user.name || '') + '</div><img src="/img/marker.png"></div>').css({
+				var $marker = $('<div data-activity="' + user.lastActivity + '" class="marker origin"><div class="meta">' + (user.name || '') + (user.city.country_name ? ' (' + (user.city.city ? user.city.city + ' / ' : '') + user.city.country_name + ')' : '') + '</div><img src="/img/marker.png"></div>').css({
 					left: x + 'px',
 					top: y + 'px'
 				}).appendTo($map);
 
-				var $userListEntry = $('<li>' + id + ' ('+ user.country +')</li>').hover(function () {
+				var $userListEntry = $('<li>' + id + (user.city.country_name ? ' (' + (user.city.city ? user.city.city + ' / ' : '') + user.city.country_name + ')' : '') + '</li>').hover(function () {
 					$marker.addClass('hover').trigger('mouseover');
 				}, function () {
 					$marker.removeClass('hover').trigger('mouseout');
-				}).appendTo('#userlist');
+				}).prependTo('#userlist');
 
 				markers[id] = {
 					key: id,
