@@ -3,6 +3,8 @@
 Creates a server, monitors a tail -f output for IP addresses, GeoIPs them and sends them to a map. 
 Run it and visit http://yourhost.com/map
 
+<img src="http://dl.dropbox.com/u/396087/maptail.png" border="0" />
+
 ### Installation
 
 Clone this repository.
