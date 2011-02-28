@@ -1,0 +1,8 @@
+- understand what helpful is doing
+- replace helpful entirely
+- introduce static file serving by expressjs
+- introduce plain authentication and session handling by expressjs
+- more structure to the project
+- extract some funtionality like configuration etc.
+- update package.json to reflect all dependencies
+- Buy stagas a beer for his contribution ;)
