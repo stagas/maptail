@@ -36,6 +36,14 @@ var http = require('http')
   
 var app = express.createServer()
 
+app.configure(function(){
+  app.use(express.methodOverride());
+  app.use(express.bodyDecoder());
+  app.use(app.router);
+  app.use(express.staticProvider(__dirname + '/public'));
+  app.set('views', __dirname + '/views');
+});
+/*
 var config = boil(app, {
   host: host
 , 'public': __dirname + '/public'
@@ -63,6 +71,7 @@ var config = boil(app, {
     })
   ]
 })
+*/
 
 compile(config.views)
 
