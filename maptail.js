@@ -29,6 +29,8 @@ app.configure(function(){
   app.use(app.router);
   app.use(express.staticProvider(__dirname + '/public'));
   app.set('views', __dirname + '/views');
+  app.use(express.logger());
+  app.set('view engine', 'jade');
 });
 
 app.configure('development', function(){
@@ -45,17 +47,17 @@ var allowedIPs = {}
   , connected = {}
   , users = {}
 
-app.get('/', expires(false), function(req, res) {
+app.get('/', function(req, res) {
   res.render('index', { title: 'Home' })
 })
 
 // remove the allow() middleware to allow everyone in
-app.get('/map', allow('admin', 'moderator'), expires(false), function(req, res) {
-  allowedIPs[req.headers.ip] = req.session.user
+app.get('/map', function(req, res) {
+  //allowedIPs[req.headers.ip] = req.session.user
   res.render('map', { layout: 'empty', title: 'tail -f ' + filename })
 })
 
-app.get('/js/config.js', allow('admin', 'moderator'), expires(false), function(req, res) {
+app.get('/js/config.js', function(req, res) {
   html = [
     'var WSHOST = "' + wshost + '";'
   + 'var WSPORT = ' + wsport + ';'
@@ -64,7 +66,7 @@ app.get('/js/config.js', allow('admin', 'moderator'), expires(false), function(r
   res.send(html.join('\n'))
 })
 
-app.get('/admin', expires(false), function(req, res) {
+app.get('/admin', function(req, res) {
   req.users.list(function(err, data) {
     res.render('admin', { title: 'Admin area', data: data })
   })
@@ -76,7 +78,7 @@ app.listen(port, host);
 // socket.io
 
 var wsserver = http.createServer()
-start(wsserver, wsport, wshost)
+wsserver.listen(wsport, wshost);
 var socket = io.listen(wsserver)
 
 socket.on('connection', function(client) {
