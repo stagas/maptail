@@ -7,25 +7,11 @@ var http = require('http')
   , spawn = require('child_process').spawn
 
   , express = require('express')
-
-  , login = require('helpful/login')
-  , allow = require('helpful/allow')
-  , boil = require('helpful/boil')
-  , helpful = require('helpful')
-
   , io = require('socket.io')
   
   , geoip = require('geoip')
   , cities = geoip.open(__dirname + '/GeoLiteCity.dat')
   
-  , log = helpful.log(1)
-  , start = helpful.start
-  , rewrite = helpful.rewrite
-  , cache = helpful.cache
-  , compile = helpful.compile
-  , render = helpful.render
-  , expires = helpful.expires
-
   , port = process.argv.length >= 4 && process.argv[4] || process.env.PORT || process.env.POLLA_PORT || 8080
   , host = process.argv.length >= 3 && process.argv[3] || process.env.HOST || process.env.POLLA_HOST || 'localhost'
   
@@ -33,7 +19,8 @@ var http = require('http')
   , wshost = process.env.WSHOST || host
   
   , filename = process.argv.length >= 2 && process.argv[2] || 'nohup.out'
-  
+
+// configuration  
 var app = express.createServer()
 
 app.configure(function(){
@@ -43,37 +30,6 @@ app.configure(function(){
   app.use(express.staticProvider(__dirname + '/public'));
   app.set('views', __dirname + '/views');
 });
-/*
-var config = boil(app, {
-  host: host
-, 'public': __dirname + '/public'
-, views: __dirname + '/views'
-
-, context: {
-    wshost: wshost
-  , wsport: wsport
-  , htmlspecialchars: helpful.htmlspecialchars
-  }
-  
-, rewrite: function(app) {
-    app.get('*.html|*.htm', rewrite(helpful.stripExt))
-    app.get('/index', rewrite('/'))
-  }
-  
-, custom: [
-    cache()
-  , login({
-      css: '/css/wargames.css'
-    , after: function(req, res, next) {
-        req.expireAll()
-        next()
-      }
-    })
-  ]
-})
-*/
-
-compile(config.views)
 
 // main app
 
@@ -106,7 +62,8 @@ app.get('/admin', expires(false), function(req, res) {
   })
 })
 
-start(app, port, host)
+// start Server
+app.listen(port, host);
 
 // socket.io
 
