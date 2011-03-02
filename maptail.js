@@ -31,6 +31,14 @@ app.configure(function(){
   app.set('views', __dirname + '/views');
 });
 
+app.configure('development', function(){
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+});
+
+app.configure('production', function(){
+  app.use(express.errorHandler());
+});
+
 // main app
 
 var allowedIPs = {}
