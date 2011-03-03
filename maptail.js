@@ -48,7 +48,7 @@ var allowedIPs = {}
   , users = {}
 
 app.get('/', function(req, res) {
-  res.render('index', {locals: { title: 'Home' } })
+  res.redirect('/map');
 })
 
 // remove the allow() middleware to allow everyone in
