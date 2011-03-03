@@ -48,15 +48,16 @@ var allowedIPs = {}
   , users = {}
 
 app.get('/', function(req, res) {
-  res.render('index', { title: 'Home' })
+  res.render('index', {locals: { title: 'Home' } })
 })
 
 // remove the allow() middleware to allow everyone in
 app.get('/map', function(req, res) {
   //allowedIPs[req.headers.ip] = req.session.user
-  res.render('map', { layout: 'empty', title: 'tail -f ' + filename })
+  res.render('map', {locals: { layout: 'empty', title: 'tail -f ' + filename } })
 })
 
+// get configuration information
 app.get('/js/config.js', function(req, res) {
   html = [
     'var WSHOST = "' + wshost + '";'
@@ -68,7 +69,7 @@ app.get('/js/config.js', function(req, res) {
 
 app.get('/admin', function(req, res) {
   req.users.list(function(err, data) {
-    res.render('admin', { title: 'Admin area', data: data })
+    res.render('admin', { locals: { title: 'Admin area', data: data } })
   })
 })
 
