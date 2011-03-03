@@ -54,7 +54,7 @@ app.get('/', function(req, res) {
 // remove the allow() middleware to allow everyone in
 app.get('/map', function(req, res) {
   //allowedIPs[req.headers.ip] = req.session.user
-  res.render('map', {locals: { layout: 'empty', title: 'tail -f ' + filename } })
+  res.render('map', {layout: false, locals: {title: 'tail -f ' + filename } })
 })
 
 // get configuration information
