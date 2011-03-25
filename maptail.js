@@ -25,9 +25,9 @@ var app = express.createServer()
 
 app.configure(function(){
   app.use(express.methodOverride());
-  app.use(express.bodyDecoder());
+  app.use(express.bodyParser());
   app.use(app.router);
-  app.use(express.staticProvider(__dirname + '/public'));
+  app.use(express.static(__dirname + '/public'));
   app.set('views', __dirname + '/views');
   app.use(express.logger());
   app.set('view engine', 'jade');
@@ -227,7 +227,7 @@ tail.stdout.on('data', function (data) {
           ips[ip].city = {}
           ips[ip].lat = 0
           ips[ip].lng = 0
-          log('Could not grab location for', ip, ' - ', city)
+          console.log('Could not grab location for', ip, ' - ', city)
         }
       }
     }
