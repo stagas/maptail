@@ -7,20 +7,22 @@ Run it and visit http://yourhost.com/map
 
 ### Installation
 
-Clone this repository.
-You'll also need [node.js](http://nodejs.org) installed, and [npm](http://npmjs.org) to install dependencies.
+Grab [npm](http://npmjs.org) and:
 
-Tested and working with node.js v0.3.1.
+    npm install maptail
+
+Tested and working with node.js v0.4.4.
 
 ### Usage
 
-    node maptail.js <file_to_tail> [host] [port]
-
-You also need to download GeoIP City Lite Edition [Download](http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz) 
-and extract it into the repository folder.
+    maptail <file_to_tail> [host] [port]
 
 ### Credits
 
 This is based on [mape's wargames](https://github.com/mape/node-wargames).
 
 Could not be possible without [kuno's GeoIP](https://github.com/kuno/GeoIP) module.
+
+### Resources
+
+[Latest GeoIP City Lite Edition](http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz)
