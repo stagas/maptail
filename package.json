@@ -1,23 +1,17 @@
-{
-  "name": "maptail",
-  "description": "maptail geoips your tail -f to a map",
-  "version": "0.0.2",
-  "author": "George Stagakis <gstagas@gmail.com> (http://stagas.com/)",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/stagas/maptail.git"
-  },
-  "bin": {
-    "maptail": "./maptail.js"
-  },
-  "dependencies": {
-    "helpful": ">=0.0.3"
-  },
-  "engines": {
-    "node": "*"
-  },
-  "directories": {},
-  "files": [
-    ""
-  ]
+{ "name": "maptail"
+, "description": "maptail geoips your tail -f to a map"
+, "version": "0.0.3"
+, "author": "stagas <gstagas@gmail.com> (http://stagas.com/)"
+, "repository": 
+  { "type": "git"
+  , "url": "git://github.com/stagas/maptail.git"
+  }
+, "bin": { "maptail": "./maptail.js" }
+, "dependencies":
+  { "express": ">=2.0.0"
+  , "geoip": ">=0.3.1"
+  }
+, "engines": { "node": ">=0.4.0" }
+, "directories": {}
+, "files": [ "" ]
 }
