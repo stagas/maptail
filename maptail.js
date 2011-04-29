@@ -24,13 +24,13 @@ var http = require('http')
 var app = express.createServer()
 
 app.configure(function(){
+  app.set('views', __dirname + '/views');
+  app.set('view engine', 'jade');
+  app.use(express.logger());
   app.use(express.methodOverride());
   app.use(express.bodyParser());
   app.use(app.router);
   app.use(express.static(__dirname + '/public'));
-  app.set('views', __dirname + '/views');
-  app.use(express.logger());
-  app.set('view engine', 'jade');
 });
 
 app.configure('development', function(){
@@ -139,7 +139,7 @@ var world = {
       broadcast(returnObj)
     }
     else {
-      log('Failed update, ' + from.name + ' lacks coordinates.')
+      console.log('Failed update, ' + from.name + ' lacks coordinates.')
     }
   }
   
@@ -172,7 +172,7 @@ var world = {
 
 // tail -n 1000 -f filename
 
-tail = spawn('tail', ['-n', '1000', '-f', filename])
+var tail = spawn('tail', ['-n', '1000', '-f', filename])
 
 tail.stdout.on('data', function (data) {
   var dataStr = data.toString()
