@@ -2,16 +2,16 @@
 , "description": "maptail geoips your tail -f to a map"
 , "version": "0.0.5"
 , "author": "George Stagas <gstagas@gmail.com> (http://stagas.com/)"
-, "repository": 
+, "repository":
   { "type": "git"
   , "url": "git://github.com/stagas/maptail.git"
   }
 , "bin": { "maptail": "./maptail.js" }
 , "dependencies":
-  { "express": ">=2.0.0"
-  , "geoip": ">=0.3.1"
-  , "socket.io": ">=0.6.0"
-  , "jade": ">=0.10.4"
+  { "express": "=2.0.0"
+  , "geoip": "=0.3.1"
+  , "socket.io": "=0.6.0"
+  , "jade": "=0.10.4"
   }
 , "engines": { "node": ">=0.4.0" }
 }
