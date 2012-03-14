@@ -252,7 +252,7 @@ window.onload = function () {
         object: document.createElement('div')
       }
       this.ipList.object.className = 'ip'
-      this.ipList.object.innerHTML = this.ip + ' <span style="color:yellow">' + (geo.country || '??') + '</span>'
+      this.ipList.object.innerHTML = (geo.city ? '<span class="city">' + geo.city + '</span> ' : '') + this.ip + ' <span class="country">' + (geo.country || '??') + '</span>'
 
       this.visitorTimeout = setTimeout(visitorsDec, config.maxAge * 1000)
     }

@@ -107,3 +107,15 @@ html, body {
   font-family:Lucida Grande, Arial, Helvetica, sans-serif;
   font-size:13px;
 }
+
+#iplist div:hover, #iplist div:hover > * {
+  color:yellow !important;
+}
+
+.city {
+  color:#222;
+}
+
+.country {
+  color:yellow;
+}
