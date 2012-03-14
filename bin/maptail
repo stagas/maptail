@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 
-var help = 'usage: maptail [-f filename] [-h host] [-p port] [--decay <seconds>] [--quiet]'
+var help = '\nusage: maptail [-f filename] [-h host] [-p port] [options...]\n\n'
+         + '  --maxdots <number> ..... maximum number of dots to display on screen [50]\n'
+         + '  --ttl <seconds> ........ marker initial time to live [15]\n'
+         + '  --maxage <seconds> ..... maximum time which one is considered a visitor [300]\n'
+         + '  --buffer <ms> .......... buffer in ms [250]'         
+         + '  --fps <fps> ............ how fast do the markers age [60]'
+         + '  --quiet ................ don\'t proxy to stdout\n'
 
 var spawn = require('child_process').spawn
 var maptail = require('../')
@@ -16,8 +22,12 @@ while (arg = args.shift()) {
   if (arg == '-h' || arg == '--host') config.host = args.shift()
   else if (arg == '-p' || arg == '--port') config.port = parseInt(args.shift(), 10)
   else if (arg == '--help') console.log(help), process.exit()
-  else if (arg == '-q' || arg == '--quiet') config.quiet = true
-  else if (arg == '-d' || arg == '--decay') maptail.clientConfig.ttl = parseInt(args.shift(), 10)
+  else if (arg == '--quiet') config.quiet = true
+  else if (arg == '--max-dots' || arg == '--maxdots') maptail.clientConfig.maxDots = parseInt(args.shift(), 10)
+  else if (arg == '--decay' || arg == '--ttl') maptail.clientConfig.ttl = parseInt(args.shift(), 10)
+  else if (arg == '--max-age' || arg == '--maxage') maptail.clientConfig.visitorMaxAge = parseInt(args.shift(), 10)
+  else if (arg == '--fps') maptail.clientConfig.ageInterval = 1000 / parseInt(args.shift(), 10)
+  else if (arg == '--buffer') maptail.bufferTime = parseInt(args.shift(), 10)    
   else spawnArgs.push(arg)
 }
 

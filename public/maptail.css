@@ -99,12 +99,11 @@ html, body {
 #iplist {
   position:fixed;
   right:0;
-  top:0;
+  bottom:0;
   padding:3px;
-  height:99.9%;
   text-align:right;
   z-index:20;
   color:#666;
   font-family:Lucida Grande, Arial, Helvetica, sans-serif;
-  font-size:11px;
+  font-size:13px;
 }

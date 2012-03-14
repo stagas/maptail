@@ -9,5 +9,5 @@ function rand () {
 var i = 0
 setInterval(function () {
   if (Math.random() * 10 < 1) file.write((i++) + 'gibb'.red + 'er'.yellow + 'ish '.green + [0,0,0,0].map(rand).join('.') + ' more'.cyan + ' gibb'.magenta + 'erish'.blue + '\r\n')
-  else if (Math.random() * 10 > 9) file.write((i++) + ' more gibberish with no ip\n')
+  else if (Math.random() * 10 > 9.8) file.write((i++) + ' more gibberish with no ip\n')
 }, 20)

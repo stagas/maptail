@@ -16,5 +16,5 @@ function rand () {
 }
 
 setInterval(function () {
-  if (Math.random() * 10 < 1) maptail.emit('ip', [0,0,0,0].map(rand).join('.'))
-}, 20)
+  if (Math.random() * 10 < 10) maptail.emit('ip', [0,0,0,0].map(rand).join('.'))
+}, 1)
