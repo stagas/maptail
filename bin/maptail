@@ -23,11 +23,11 @@ while (arg = args.shift()) {
   else if (arg == '-p' || arg == '--port') config.port = parseInt(args.shift(), 10)
   else if (arg == '--help') console.log(help), process.exit()
   else if (arg == '--quiet') config.quiet = true
-  else if (arg == '--max-dots' || arg == '--maxdots') maptail.clientConfig.maxDots = parseInt(args.shift(), 10)
-  else if (arg == '--decay' || arg == '--ttl') maptail.clientConfig.ttl = parseInt(args.shift(), 10)
-  else if (arg == '--max-age' || arg == '--maxage') maptail.clientConfig.visitorMaxAge = parseInt(args.shift(), 10)
-  else if (arg == '--fps') maptail.clientConfig.ageInterval = 1000 / parseInt(args.shift(), 10)
-  else if (arg == '--buffer') maptail.bufferTime = parseInt(args.shift(), 10)    
+  else if (arg == '--max-dots' || arg == '--maxdots') maptail.config.maxDots = parseInt(args.shift(), 10)
+  else if (arg == '--decay' || arg == '--ttl') maptail.config.ttl = parseInt(args.shift(), 10)
+  else if (arg == '--max-age' || arg == '--maxage') maptail.config.maxAge = parseInt(args.shift(), 10)
+  else if (arg == '--fps') maptail.config.fps = 1000 / parseInt(args.shift(), 10)
+  else if (arg == '--buffer') maptail.config.bufferTime = parseInt(args.shift(), 10)
   else spawnArgs.push(arg)
 }
 

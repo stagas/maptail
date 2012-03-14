@@ -1,21 +1,5 @@
 // config
-var config = {}
-
-// markers' initial time to live in seconds
-config.ttl = 100 // seconds
-
-// maximum dots to be displayed (this adjusts ttl automatically)
-config.maxDots = 60
-
-// report visitors up to that age
-config.visitorMaxAge = 240 // seconds
-
-// aging repaint in milliseconds
-config.ageInterval = 1000 / 60
-
-// from the server
-config.timeDiff = 0
-config.bufferTime = 1000
+var config = { timeDiff: 0 }
 
 // visitors
 var visitors = 0
@@ -226,7 +210,7 @@ window.onload = function () {
       } else {
         marker = this.markers.list[geo.ip]
         clearTimeout(marker.visitorTimeout)
-        marker.visitorTimeout = setTimeout(visitorsDec, config.visitorMaxAge * 1000)
+        marker.visitorTimeout = setTimeout(visitorsDec, config.maxAge * 1000)
         marker.date = geo.date
       }
     }
@@ -270,7 +254,7 @@ window.onload = function () {
       this.ipList.object.className = 'ip'
       this.ipList.object.innerHTML = this.ip + ' <span style="color:yellow">' + (geo.country || '??') + '</span>'
 
-      this.visitorTimeout = setTimeout(visitorsDec, config.visitorMaxAge * 1000)
+      this.visitorTimeout = setTimeout(visitorsDec, config.maxAge * 1000)
     }
 
     Marker.prototype.paint = function () {
@@ -349,7 +333,7 @@ window.onload = function () {
 
   setInterval(function () {
     map.markers.age()
-  }, config.ageInterval)
+  }, 1000 / config.fps)
 
   connect(function (client) {  
     client.remote.on('config', function (cfg) {

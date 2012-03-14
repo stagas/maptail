@@ -2,7 +2,7 @@
   "author": "George Stagas <gstagas@gmail.com> (http://stagas.com)",
   "name": "maptail",
   "description": "maptail is a realtime map view of GeoIP data",
-  "version": "0.1.6",
+  "version": "0.1.8",
   "repository": {
     "url": "git://github.com/stagas/maptail.git"
   },
