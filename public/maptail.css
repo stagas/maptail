@@ -1,0 +1,97 @@
+* {
+-moz-box-sizing: border-box;
+-webkit-box-sizing: border-box;
+box-sizing: border-box;
+}
+
+html, body {
+  width:100%;
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  margin:0;
+  padding:0;
+  background:#000;
+  overflow:hidden;
+}
+
+#map {
+  width:100%;
+  height:100%;
+}
+
+#active {
+  position:fixed;
+  left:10px;
+  top:0;
+  color:#666;
+  font-family:Verdana, Arial, Helvetica, sans-serif;
+  font-weight:normal;
+  font-size:16px;
+  z-index:10;
+}
+
+#active-number {
+  font-size:50px;
+  vertical-align:middle;
+}
+
+#markers {
+  position:absolute;
+  left:0;
+  top:0;
+}
+
+.marker {
+  position:absolute;
+  background:url('maptail-marker.png') top left no-repeat;
+  width:34px;
+  height:34px;
+  margin-top:-12px;
+  margin-left:-12px;
+}
+
+.marker .data {
+  position:absolute;
+  background:rgba(0,0,0,0.84);
+  color:yellow;
+  top:-26px;
+  left:-32px;
+  width:100px;
+  display:none;
+  font-family:Lucida Grande, Arial, Helvetica, sans-serif;
+  font-size:9px;
+  line-height:10px;
+  white-space:nowrap;
+  padding:2px 0;
+  border-radius:4px;
+  border:1px solid rgba(255,255,255,0.1);
+  text-align:center;
+}
+
+.marker:hover {
+  opacity:1.0 !important;
+}
+
+.marker:hover .data {
+  display:block;
+  z-index:10000;
+}
+
+#messages {
+  position:fixed;
+  left:0;
+  bottom:0;
+  padding:10px;
+  width:100%;
+  z-index:10;
+  color:#777;
+  font-family:Consolas, Courier New;
+  font-size:12px;
+  line-height:11px;
+  white-space:nowrap;
+}
+
+#messages:hover div {
+  opacity:1.0 !important;
+}

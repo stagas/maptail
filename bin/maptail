@@ -1,0 +1,70 @@
+#!/usr/bin/env node
+
+var help = 'usage: maptail [-f filename] [-h host] [-p port] [--decay <seconds>] [--quiet]'
+
+var spawn = require('child_process').spawn
+var maptail = require('../')
+var express = require('express')
+
+var config = {
+  host: 'localhost'
+, port: 8080
+}
+
+var arg, args = process.argv.slice(2), spawnArgs = []
+while (arg = args.shift()) {
+  if (arg == '-h' || arg == '--host') config.host = args.shift()
+  else if (arg == '-p' || arg == '--port') config.port = parseInt(args.shift(), 10)
+  else if (arg == '--help') console.log(help), process.exit()
+  else if (arg == '-q' || arg == '--quiet') config.quiet = true
+  else if (arg == '-d' || arg == '--decay') maptail.clientConfig.ttl = parseInt(args.shift(), 10)
+  else spawnArgs.push(arg)
+}
+
+var app = express.createServer()
+
+app.use(maptail.static())
+
+maptail.attach(app)
+
+app.listen(config.port, config.host, function () {
+  if (!config.quiet) console.log('* started http://' + config.host + ':' + config.port + '/')
+})
+
+var tail
+if (~spawnArgs.indexOf('-f')) {
+  if (!config.quiet) console.log('* tailing:', spawnArgs[spawnArgs.indexOf('-f') + 1])
+  tail = spawn('tail', spawnArgs).stdout
+}
+else {
+  console.log('* tailing stdin')
+  process.stdin.resume()
+  tail = process.stdin
+}
+
+var lines = ''
+
+tail.setEncoding('utf8')
+tail.on('data', function (data) {
+  if (!config.quiet) process.stdout.write(data)
+  lines += data
+  lines = lines.replace(/([^\r\n]+|[^\n]+)[\r\n|\n]+/g, function (m, line) {
+    var ips = (
+      line.match(/(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/gm)
+      || []
+      ).filter(function(ip) {
+      return ip
+        .split('.')
+        .filter(function (el) { return el < 10 })
+        .length < 3
+    })
+    if (ips.length) {
+      ips.forEach(function (ip) {
+        maptail.emit('ip', ip, line)
+      })
+    } else {
+      maptail.emit('ip', null, line)
+    }
+    return ''
+  })
+})

@@ -1,0 +1,23 @@
+{
+  "author": "George Stagas <gstagas@gmail.com> (http://stagas.com)",
+  "name": "maptail",
+  "version": "0.1.3",
+  "repository": {
+    "url": "git://github.com/stagas/maptail.git"
+  },
+  "bin": {
+    "maptail": "./bin/maptail"
+  },
+  "main": "./index.js",
+  "engines": {
+    "node": "~0.6.8"
+  },
+  "dependencies": {
+    "express": "~2.5.8",    
+    "simpl": "~0.4.0",
+    "geoip-lite-with-city-data": "~1.0.5"
+  },
+  "devDependencies": {
+    "colors": "*"
+  }
+}
