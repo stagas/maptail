@@ -2,13 +2,13 @@
 var config = {}
 
 // markers' initial time to live in seconds
-config.ttl = 15 // seconds
+config.ttl = 100 // seconds
 
 // maximum dots to be displayed (this adjusts ttl automatically)
 config.maxDots = 60
 
 // report visitors up to that age
-config.visitorMaxAge = 120 // seconds
+config.visitorMaxAge = 240 // seconds
 
 // aging repaint in milliseconds
 config.ageInterval = 1000 / 60
@@ -155,9 +155,9 @@ window.onload = function () {
         }      
         this.object.appendChild(marker.object)
         this.ipList.appendChild(marker.ipList.object)
-        /*this.ipList.insertBefore(
+        this.ipList.insertBefore(
           marker.ipList.object, this.ipList.firstChild
-        )*/
+        )
         marker.ipList.object.onmouseover = marker.object.onmouseover = function () {
           clearTimeout(self.freezeTimeout)
           self.freeze = self.freeze || []

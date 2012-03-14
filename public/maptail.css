@@ -99,7 +99,7 @@ html, body {
 #iplist {
   position:fixed;
   right:0;
-  bottom:0;
+  top:0;
   padding:3px;
   text-align:right;
   z-index:20;
