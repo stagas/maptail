@@ -21,16 +21,43 @@ function createMap () {
   map.markers = {
     object: document.getElementById('markers')
   , list: {}
+  , ipList: document.getElementById('iplist')
+  , freeze: false
   , active: 0
   , add: function (marker) {
       this.active++
       this.list[marker.ip] = marker
+      if (!this.freeze) {
+        this.append(marker)
+      } else {
+        this.freeze.push(marker)
+      }
+    }
+  , append: function (marker) {
+      var self = this
       this.object.appendChild(marker.object)
+      this.ipList.appendChild(marker.ipList.object)
+      this.ipList.insertBefore(
+        marker.ipList.object, this.ipList.firstChild
+      )
+      marker.ipList.object.onmouseover = function () {
+        clearTimeout(self.freezeTimeout)
+        self.freeze = self.freeze || []
+        marker.object.classList.add('hovered')
+      }
+      marker.ipList.object.onmouseout = function () {
+        self.freezeTimeout = setTimeout(function () {
+          self.freeze.forEach(self.append.bind(self))
+          self.freeze = false
+        }, 500)
+        marker.object.classList.remove('hovered')
+      }
     }
   , remove: function (marker) {
       this.active--
       delete this.list[marker.ip]
       this.object.removeChild(marker.object)
+      this.ipList.removeChild(marker.ipList.object)
     }
   , forEach: function (fn) {
       var self = this
@@ -59,7 +86,7 @@ function createMap () {
     }
   }
   map.object.style.position = 'absolute'
-  map.object.style.margin = '10px'
+  map.object.style.margin = map.margin + 'px'
 
   map.paper = Raphael(map.object)
   map.paper
@@ -73,6 +100,7 @@ function createMap () {
     this.ip = geo.ip
     this.latlon = geo.ll
     this.date = geo.date
+    
     this.object = document.createElement('div')
     this.object.className = 'marker'
     this.location = {
@@ -89,6 +117,13 @@ function createMap () {
     this.object.innerHTML = html
     this.inner = {}
     this.inner.ageNumber = this.object.getElementsByClassName('age-number')[0]
+    this.inner.ageNumber.textContent = '0.0'
+
+    this.ipList = {
+      object: document.createElement('div')
+    }
+    this.ipList.object.className = 'ip'
+    this.ipList.object.innerHTML = this.ip + ' <span style="color:yellow">' + (geo.country || '??') + '</span>'
   }
 
   Marker.prototype.paint = function () {
@@ -100,7 +135,7 @@ function createMap () {
   Marker.prototype.age = function () {
     var now = Date.now()
     var age = (now - this.date) / 1000
-    this.inner.ageNumber = age.toFixed(1)
+    this.inner.ageNumber.textContent = age.toFixed(1)
     if (age > config.ttl) map.markers.remove(this)
     else
       this.object.style.opacity = 1 - (age / config.ttl)

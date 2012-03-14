@@ -69,11 +69,11 @@ html, body {
   text-align:center;
 }
 
-.marker:hover {
+.marker:hover, .marker.hovered {
   opacity:1.0 !important;
 }
 
-.marker:hover .data {
+.marker:hover .data, .marker.hovered .data {
   display:block;
   z-index:10000;
 }
@@ -82,7 +82,7 @@ html, body {
   position:fixed;
   left:0;
   bottom:0;
-  padding:10px;
+  padding:3px;
   width:100%;
   z-index:10;
   color:#777;
@@ -94,4 +94,17 @@ html, body {
 
 #messages:hover div {
   opacity:1.0 !important;
+}
+
+#iplist {
+  position:fixed;
+  right:0;
+  top:0;
+  padding:3px;
+  height:99.9%;
+  text-align:right;
+  z-index:20;
+  color:#666;
+  font-family:Lucida Grande, Arial, Helvetica, sans-serif;
+  font-size:11px;
 }
