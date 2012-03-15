@@ -524,7 +524,7 @@ window.onload = function () {
           if (geo.ll) map.placeMarker(geo)
           active.textContent = visitors
           if (geo.message) {
-            //messages.add(geo.message)
+            messages.add(geo.message)
             matches.consider(geo)
           }
         }, n += nadd)
