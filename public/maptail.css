@@ -16,8 +16,13 @@ html, body {
 }
 
 #map {
+  z-index:0;
   width:100%;
   height:100%;
+}
+
+#map svg {
+  z-index:10;
 }
 
 #active {
@@ -37,6 +42,7 @@ html, body {
 }
 
 #markers {
+  z-index:20;
   position:absolute;
   left:0;
   top:0;
@@ -102,13 +108,13 @@ html, body {
   top:0;
   padding:3px;
   text-align:right;
-  z-index:20;
+  z-index:30;
   color:#666;
   font-family:Lucida Grande, Arial, Helvetica, sans-serif;
   font-size:13px;
 }
 
-#iplist div:hover, #iplist div:hover > * {
+#iplist div:hover, #iplist div:hover > *, #iplist div.hovered, #iplist div.hovered > * {
   color:yellow !important;
 }
 
@@ -118,4 +124,47 @@ html, body {
 
 .country {
   color:yellow;
+}
+
+#regexp {
+  position:fixed;
+  top:15px;
+  left:200px;
+  z-index:100;
+  background:rgba(0,0,0,0.3);
+  border:1px solid #222;
+  padding:6px;
+  font-family:Consolas;
+  font-size:14px;
+  color:yellow;
+}
+
+#regexp:focus {
+  border-color:#555;
+}
+
+#matches {
+  position:fixed;
+  top:52px;
+  left:0;
+  padding:10px;
+  z-index:50;
+  font-family:Consolas, Courier New;
+  font-size:12px;
+  line-height:11px;
+}
+
+#dots {
+  z-index:1000;
+}
+
+.dot {
+  position:fixed;
+  left:-100px;
+  top:-100px;
+  width:4px;
+  height:4px;
+  border-radius:100%;
+  background:yellow;
+  z-index:1000;
 }

@@ -49,8 +49,161 @@ function ansiToHtml (text) {
 }
 
 window.onload = function () {
+  var dots = {
+    object: document.getElementById('dots')
+  , add: function (source, target) {
+      if (this.list.length < this.max) {
+        var dot = new Dot(source, target)
+        this.object.appendChild(dot.object)
+        this.list.push(dot)
+      }
+    }
+  , max: 100
+  , list: []
+  , tick: function () {
+      var self = this
+      var list = this.list
+      var toRemove = []
+      list.forEach(function (dot) {
+        dot.tick()
+        dot.draw()
+        if (Math.abs(dot.target.x - dot.x) < 0.1
+          && Math.abs(dot.target.y - dot.y) < 0.1) {
+          self.object.removeChild(dot.object)
+          toRemove.push(dot)
+        }
+      })
+      toRemove.forEach(function (dot) {
+        list.splice(list.indexOf(dot), 1)
+      })
+    }
+  , clear: function () {
+      var self = this
+      this.list.forEach(function (dot) {
+        self.object.removeChild(dot.object)
+      })
+      this.list = []
+    }
+  }
+
+  function Dot (source, target) {
+    this.object = document.createElement('div')
+    this.object.className = 'dot'
+    this.target = target
+    this.target.x += 3
+    this.target.y += 3
+    this.x = source.x
+    this.y = source.y
+    this.vx = (Math.random() * 10) - 5
+    this.vy = (Math.random() * 10) - 5
+  }
+
+  Dot.prototype.tick = function () {
+    this.vx += (this.target.x - this.x) * (0.008 + (Math.random() * 0.014))
+    this.vy += (this.target.y - this.y) * (0.008 + (Math.random() * 0.014))
+
+    var l = 7
+    if (this.vx > 0 && this.vx > l) this.vx *= 0.9, this.vy *= Math.random () * 0.15
+    if (this.vx < 0 && this.vx < -l) this.vx *= 0.9, this.vy *= Math.random () * 0.15
+    if (this.vy > 0 && this.vy > l) this.vy *= 0.9, this.vx *= Math.random () * 0.15
+    if (this.vy < 0 && this.vy < -l) this.vy *= 0.9, this.vx *= Math.random () * 0.15
+
+    this.x += this.vx
+    this.y += this.vy
+
+    this.vx *= 0.58
+    this.vy *= 0.58
+  }
+
+  Dot.prototype.draw = function () {
+    this.object.style.left = Math.floor(this.x) + 'px'
+    this.object.style.top = Math.floor(this.y) + 'px'
+  }
+
   var map = createMap()
   var active = document.getElementById('active-number')
+  var regexpInput = document.getElementById('regexp')
+
+  var matches = {
+    object: document.getElementById('matches')
+  , list: {}
+  , regexp: false
+  , maxAge: 10
+  , consider: function (geo) {
+      var self = this
+      var list = this.list
+      if (!(this.regexp instanceof RegExp)) return
+      if (!this.regexp.test(geo.message)
+        && !this.regexp.test(geo.country)
+        && !this.regexp.test(geo.city)
+        ) return
+      function maybeAdd () {
+        if (geo.ip in map.markers.list) {
+          var marker = map.markers.list[geo.ip]
+          var source = {
+            x: marker.ipList.object.parentNode.offsetLeft + marker.ipList.object.offsetLeft + 100
+          , y: marker.ipList.object.parentNode.offsetTop + marker.ipList.object.offsetTop + 6
+          }
+          var target = map.latLongToPx(marker.latlon)
+          target.x += map.offset.x + map.margin
+          target.y += map.offset.y + map.margin
+          dots.add(source, target)
+          marker.ipList.object.classList.add('hovered')
+          setTimeout(function () {
+            marker.ipList.object.classList.remove('hovered')
+          }, 700)
+        }
+      }
+      function destroy (key, item) {
+        clearTimeout(item.removeTimeout)        
+        item.removeTimeout = setTimeout(function () {
+          self.object.removeChild(item.object)
+          delete list[key]
+        }, Math.pow(self.maxAge, item.hits))
+      }
+      var found = false
+      for (var k in list) {
+        if (levenshtein(geo.message, k) <= 12) {
+          var item = list[k]
+          item.inc()
+          item.set(geo)
+          maybeAdd()
+          destroy(k, item)
+          found = true
+          break
+        }
+      }
+      if (!found) {
+        var item = list[geo.message] = new HashItem(geo)
+        this.object.appendChild(item.object)
+        maybeAdd()
+        destroy(geo.message, item)        
+      }
+      var len = Object.keys(list).length
+      if (len > 7) this.maxAge -= 20
+      if (len < 7) this.maxAge += 40
+      this.maxAge = Math.max(this.maxAge, 5)
+    }
+  , clear: function () {
+      this.object.innerHTML = ''
+      this.list = {}
+      this.regexp = false
+    }
+  }
+
+  function HashItem (geo) {
+    this.object = document.createElement('div')
+    this.hits = 1
+    this.set(geo)
+  }
+  HashItem.prototype.inc = function () {
+    this.hits++
+  }
+  HashItem.prototype.set = function (geo) {
+    this.object.innerHTML = ansiToHtml(safe(geo.message))
+    this.country = geo.country
+    this.city = geo.city
+  }
 
   /*
   // calibration markers
@@ -70,23 +223,29 @@ window.onload = function () {
   , lines: []
   , freeze: 0
   , add: function (message) {
-      var line = document.createElement('div')
-      line.innerHTML = ansiToHtml(safe(message))
+      var line = new LineItem(message)
       this.lines.push(line)
       if (!this.freeze) {
         this.append(line)
       }
     }
   , append: function (line) {
-      this.object.appendChild(line)
-      if (this.lines.length > 10) {
-        this.object.removeChild(this.lines.shift())
+      this.object.appendChild(line.object)
+      if (this.lines.length > 12) {
+        this.object.removeChild(this.lines.shift().object)
       }
       this.lines.forEach(function (line, index) {
-        line.style.opacity = (0.6 / 10) * index
+        line.object.style.opacity = (0.9 / 12) * index
       })
     }
   }
+
+  function LineItem (message) {
+    this.message = message
+    this.object = document.createElement('div')
+    this.object.innerHTML = ansiToHtml(safe(message))
+  }
+
   messages.object.onmouseover = function (e) {
     clearTimeout(messages.mouseoutTimeout)
     if (!messages.freeze) {
@@ -258,7 +417,7 @@ window.onload = function () {
     }
 
     Marker.prototype.paint = function () {
-      var coords = latLongToPx(this.latlon)
+      var coords = map.latLongToPx(this.latlon)
       this.object.style.left = coords.x + 'px'
       this.object.style.top = coords.y + 'px'
     }
@@ -272,7 +431,7 @@ window.onload = function () {
         this.object.style.opacity = 1 - (age / config.ttl)
     }
 
-    function latLongToPx(latlon) {
+    map.latLongToPx = function (latlon) {
       var lat = latlon[0]
       var lon = latlon[1]
       var x, y
@@ -317,6 +476,7 @@ window.onload = function () {
       map.object.style.left = map.offset.x + 'px'
       map.object.style.top = map.offset.y + 'px'
       map.markers.paint()
+      dots.clear()
     }
 
     onresize()
@@ -331,8 +491,24 @@ window.onload = function () {
     return map
   }
 
+  regexpInput.onkeyup = function (e) {
+    var val = this.value.toString().trim()
+    if (e.which == 13) {
+      matches.clear()
+      if (val.length) {
+        matches.regexp = new RegExp(val, 'igm')
+        messages.lines.forEach(function (line) {
+          matches.consider(line.message)
+        })
+      }
+    }
+  }
+
+  matches.regexp = new RegExp(regexpInput.value, 'igm')
+
   setInterval(function () {
     map.markers.age()
+    dots.tick()
   }, 1000 / config.fps)
 
   connect(function (client) {  
@@ -347,11 +523,81 @@ window.onload = function () {
         setTimeout(function () {
           if (geo.ll) map.placeMarker(geo)
           active.textContent = visitors
-          if (geo.message) messages.add(geo.message)
+          if (geo.message) {
+            //messages.add(geo.message)
+            matches.consider(geo)
+          }
         }, n += nadd)
       })
     })
 
     client.remote.emit('subscribe', 'geoip')
   })
+}
+
+function levenshtein (s1, s2) {
+  // http://kevin.vanzonneveld.net
+  // +            original by: Carlos R. L. Rodrigues (http://www.jsfromhell.com)
+  // +            bugfixed by: Onno Marsman
+  // +             revised by: Andrea Giammarchi (http://webreflection.blogspot.com)
+  // + reimplemented by: Brett Zamir (http://brett-zamir.me)
+  // + reimplemented by: Alexander M Beedie
+  // *                example 1: levenshtein('Kevin van Zonneveld', 'Kevin van Sommeveld');
+  // *                returns 1: 3
+
+  if (s1 == s2) {
+    return 0;
+  }
+
+  var s1_len = s1.length;
+  var s2_len = s2.length;
+  if (s1_len === 0) {
+    return s2_len;
+  }
+  if (s2_len === 0) {
+    return s1_len;
+  }
+
+  // BEGIN STATIC
+  var split = false;
+  try{
+    split=!('0')[0];
+  } catch (e){
+    split=true; // Earlier IE may not support access by string index
+  }
+  // END STATIC
+  if (split){
+    s1 = s1.split('');
+    s2 = s2.split('');
+  }
+
+  var v0 = new Array(s1_len+1);
+  var v1 = new Array(s1_len+1);
+
+  var s1_idx=0, s2_idx=0, cost=0;
+  for (s1_idx=0; s1_idx<s1_len+1; s1_idx++) {
+    v0[s1_idx] = s1_idx;
+  }
+  var char_s1='', char_s2='';
+  for (s2_idx=1; s2_idx<=s2_len; s2_idx++) {
+    v1[0] = s2_idx;
+    char_s2 = s2[s2_idx - 1];
+
+    for (s1_idx=0; s1_idx<s1_len;s1_idx++) {
+      char_s1 = s1[s1_idx];
+      cost = (char_s1 == char_s2) ? 0 : 1;
+      var m_min = v0[s1_idx+1] + 1;
+      var b = v1[s1_idx] + 1;
+      var c = v0[s1_idx] + cost;
+      if (b < m_min) {
+        m_min = b; }
+      if (c < m_min) {
+        m_min = c; }
+      v1[s1_idx+1] = m_min;
+    }
+    var v_tmp = v0;
+    v0 = v1;
+    v1 = v_tmp;
+  }
+  return v0[s1_len];
 }
