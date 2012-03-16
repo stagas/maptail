@@ -58,7 +58,7 @@ window.onload = function () {
         this.list.push(dot)
       }
     }
-  , max: 100
+  , max: 300
   , list: []
   , tick: function () {
       var self = this
@@ -67,8 +67,8 @@ window.onload = function () {
       list.forEach(function (dot) {
         dot.tick()
         dot.draw()
-        if (Math.abs(dot.target.x - dot.x) < 0.1
-          && Math.abs(dot.target.y - dot.y) < 0.1) {
+        if (Math.abs(dot.target.x - dot.x) < 3
+          && Math.abs(dot.target.y - dot.y) < 3) {
           self.object.removeChild(dot.object)
           toRemove.push(dot)
         }
@@ -94,25 +94,26 @@ window.onload = function () {
     this.target.y += 3
     this.x = source.x
     this.y = source.y
-    this.vx = (Math.random() * 10) - 5
-    this.vy = (Math.random() * 10) - 5
+    this.vx = -15 + Math.random() * 5
+    this.vy = (Math.random() * 6) - 3
   }
 
   Dot.prototype.tick = function () {
-    this.vx += (this.target.x - this.x) * (0.008 + (Math.random() * 0.014))
-    this.vy += (this.target.y - this.y) * (0.008 + (Math.random() * 0.014))
+    var dist = { x: this.target.x - this.x, y: this.target.y - this.y }
+    this.vx += (this.vx * (0.58 + (Math.random() * 0.04))) + (dist.x * 0.00070) * Math.max(1, Math.min(9 - (Math.abs(dist.x) * 0.0011), 9) )
+    this.vy += (this.vy * (0.58 + (Math.random() * 0.04))) + (dist.y * 0.00070) * Math.max(1, Math.min(9 - (Math.abs(dist.y) * 0.0011), 9) )
 
-    var l = 7
-    if (this.vx > 0 && this.vx > l) this.vx *= 0.9, this.vy *= Math.random () * 0.15
-    if (this.vx < 0 && this.vx < -l) this.vx *= 0.9, this.vy *= Math.random () * 0.15
-    if (this.vy > 0 && this.vy > l) this.vy *= 0.9, this.vx *= Math.random () * 0.15
-    if (this.vy < 0 && this.vy < -l) this.vy *= 0.9, this.vx *= Math.random () * 0.15
+    var l = 6, vx = this.vx, vy = this.vy
+    if (this.vx > 0 && this.vx > l) this.vx *= 0.82 , this.vy *= Math.random () * 0.05
+    if (this.vx < 0 && this.vx < -l) this.vx *= 0.82 , this.vy *= Math.random () * 0.05
+    if (this.vy > 0 && this.vy > l) this.vy *= 0.82 , this.vx *= Math.random () * 0.05
+    if (this.vy < 0 && this.vy < -l) this.vy *= 0.82 , this.vx *= Math.random () * 0.05
 
-    this.x += this.vx
-    this.y += this.vy
+    this.x += vx
+    this.y += vy
 
-    this.vx *= 0.58
-    this.vy *= 0.58
+    this.vx *= 0.545
+    this.vy *= 0.545
   }
 
   Dot.prototype.draw = function () {
@@ -127,62 +128,72 @@ window.onload = function () {
   var matches = {
     object: document.getElementById('matches')
   , list: {}
+  , length: 0
   , regexp: false
   , maxAge: 10
+  , recalcMaxAge: function () {
+      if (this.length > 7) this.maxAge -= 30
+      if (this.length < 4) this.maxAge += 40
+      this.maxAge = Math.max(this.maxAge, 5)
+    }
+  , createFlyingDot: function (geo) {
+      var marker = map.markers.list[geo.ip]
+      if (!marker) return
+      var source = {
+        x: marker.ipList.object.parentNode.offsetLeft + marker.ipList.object.offsetLeft + 100
+      , y: marker.ipList.object.parentNode.offsetTop + marker.ipList.object.offsetTop + 6
+      }
+      var target = map.latLongToPx(marker.latlon)
+      target.x += map.offset.x + map.margin
+      target.y += map.offset.y + map.margin
+      dots.add(source, target)
+      marker.ipList.object.classList.add('hovered')
+      setTimeout(function () {
+        marker.ipList.object.classList.remove('hovered')
+      }, 700)
+    }
+  , destroySoon: function (key, item) {
+      var self = this
+      clearTimeout(item.removeTimeout)        
+      item.removeTimeout = setTimeout(function () {
+        self.object.removeChild(item.object)
+        delete self.list[key]
+        self.length--
+        self.recalcMaxAge()
+      }, Math.pow(self.maxAge, item.hits))
+    }
   , consider: function (geo) {
       var self = this
       var list = this.list
-      if (!(this.regexp instanceof RegExp)) return
-      if (!this.regexp.test(geo.message)
-        && !this.regexp.test(geo.country)
-        && !this.regexp.test(geo.city)
-        ) return
-      function maybeAdd () {
-        if (geo.ip in map.markers.list) {
-          var marker = map.markers.list[geo.ip]
-          var source = {
-            x: marker.ipList.object.parentNode.offsetLeft + marker.ipList.object.offsetLeft + 100
-          , y: marker.ipList.object.parentNode.offsetTop + marker.ipList.object.offsetTop + 6
+
+      if (!this.regexp) return this.createFlyingDot(geo)
+
+      var found = false, item
+      if (geo.message && (
+          (geo.message.match(this.regexp))
+          || (geo.country && geo.country.match(this.regexp))
+          || (geo.city && geo.city.match(this.regexp))
+          )
+        ) {
+        this.createFlyingDot(geo)        
+        for (var k in this.list) {
+          if (levenshtein(geo.message, k) <= 12) {
+            found = true
+            item = this.list[k]
+            item.inc()
+            item.set(geo)
+            this.destroySoon(k, item)
+            break
           }
-          var target = map.latLongToPx(marker.latlon)
-          target.x += map.offset.x + map.margin
-          target.y += map.offset.y + map.margin
-          dots.add(source, target)
-          marker.ipList.object.classList.add('hovered')
-          setTimeout(function () {
-            marker.ipList.object.classList.remove('hovered')
-          }, 700)
+        }
+        if (!found) {
+          var item = this.list[geo.message] = new HashItem(geo)
+          this.object.appendChild(item.object)
+          this.length++
+          this.recalcMaxAge()
+          this.destroySoon(geo.message, item)
         }
       }
-      function destroy (key, item) {
-        clearTimeout(item.removeTimeout)        
-        item.removeTimeout = setTimeout(function () {
-          self.object.removeChild(item.object)
-          delete list[key]
-        }, Math.pow(self.maxAge, item.hits))
-      }
-      var found = false
-      for (var k in list) {
-        if (levenshtein(geo.message, k) <= 12) {
-          var item = list[k]
-          item.inc()
-          item.set(geo)
-          maybeAdd()
-          destroy(k, item)
-          found = true
-          break
-        }
-      }
-      if (!found) {
-        var item = list[geo.message] = new HashItem(geo)
-        this.object.appendChild(item.object)
-        maybeAdd()
-        destroy(geo.message, item)        
-      }
-      var len = Object.keys(list).length
-      if (len > 7) this.maxAge -= 20
-      if (len < 7) this.maxAge += 40
-      this.maxAge = Math.max(this.maxAge, 5)
     }
   , clear: function () {
       this.object.innerHTML = ''
@@ -235,7 +246,7 @@ window.onload = function () {
         this.object.removeChild(this.lines.shift().object)
       }
       this.lines.forEach(function (line, index) {
-        line.object.style.opacity = (0.9 / 12) * index
+        line.object.style.opacity = (1.0 / 12) * index
       })
     }
   }
@@ -504,12 +515,7 @@ window.onload = function () {
     }
   }
 
-  matches.regexp = new RegExp(regexpInput.value, 'igm')
-
-  setInterval(function () {
-    map.markers.age()
-    dots.tick()
-  }, 1000 / config.fps)
+  matches.regexp = regexpInput.value && new(RegExp(regexpInput.value, 'igm')) || false
 
   connect(function (client) {  
     client.remote.on('config', function (cfg) {
@@ -533,7 +539,24 @@ window.onload = function () {
 
     client.remote.emit('subscribe', 'geoip')
   })
+
+  ;(function tick () {
+    map.markers.age()
+    dots.tick()
+    window.requestAnimFrame(tick)
+  }());
 }
+
+window.requestAnimFrame = (function () {
+  return window.requestAnimationFrame  
+      || window.webkitRequestAnimationFrame 
+      || window.mozRequestAnimationFrame    
+      || window.oRequestAnimationFrame      
+      || window.msRequestAnimationFrame     
+      || function (callback, el) {
+        return window.setTimeout(callback, 1000 / 60)
+      }
+}());
 
 function levenshtein (s1, s2) {
   // http://kevin.vanzonneveld.net

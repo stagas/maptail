@@ -128,7 +128,7 @@ html, body {
 
 #regexp {
   position:fixed;
-  top:15px;
+  top:11px;
   left:200px;
   z-index:100;
   background:rgba(0,0,0,0.3);
@@ -164,7 +164,37 @@ html, body {
   top:-100px;
   width:4px;
   height:4px;
-  border-radius:100%;
-  background:yellow;
+  background:url(maptail-dot.png) top left no-repeat;
+  z-index:15;
+}
+
+.ribbon {
+  background-color: #000;
+  overflow: hidden;
+  /* top left corner */
+  position: fixed;
+  right: -4em;
+  bottom: 2.7em;
+  /* 45 deg ccw rotation */
+  -moz-transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+  /* shadow */
+  -moz-box-shadow: 0 0 1em #333;
+  -webkit-box-shadow: 0 0 1em #333;
   z-index:1000;
+}
+.ribbon a {
+  border: 1px solid #333;
+  color: #555;
+  display: block;
+  font: 16px 'Lucida Grande', Arial, sans-serif;
+  margin: 0.06em 0.05 0.075em 0;
+  padding: 0.5em 3.5em 0.7em;
+  text-align: center;
+  text-decoration: none;
+  /* shadow */
+  text-shadow: 0 0 0.5em #444;
+}
+.ribbon:hover a {
+  color: #ff0;
 }
