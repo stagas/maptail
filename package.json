@@ -14,7 +14,7 @@
     "node": "~0.6.8"
   },
   "dependencies": {
-    "express": "~2.5.8",    
+    "express": "~4.17.1",    
     "simpl": "~0.4.0",
     "geoip-lite-with-city-data": "~1.0.5"
   },
