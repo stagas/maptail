@@ -1,0 +1,23 @@
+{
+  "name": "geoip",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "bun run server.ts",
+    "dev": "bun run --env-file=.env --watch server.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "ip2location-nodejs": "^9.7.0",
+    "unzipper": "^0.12.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.7.2",
+    "@types/unzipper": "^0.10.11"
+  }
+}

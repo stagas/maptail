@@ -1,0 +1,5 @@
+.env
+*.zip
+DB5*
+node_modules
+cities.json
