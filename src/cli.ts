@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { cac } from 'cac'
 import http from 'http'
 import { maptail } from './maptail.js'

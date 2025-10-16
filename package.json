@@ -1,6 +1,6 @@
 {
   "name": "maptail",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "tail geoip data on a world map in realtime",
   "main": "dist/maptail.js",
   "bin": {
