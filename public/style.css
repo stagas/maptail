@@ -139,11 +139,6 @@ body {
   transform: translateY(0px);
 }
 
-/* Align popup tip color with content background */
-.geo-popup .maplibregl-popup-tip {
-  border-top-color: #fff;
-}
-
 /* Hierarchy for country / region / city */
 .geo-popup .maplibregl-popup-content {
   font-weight: 700;
