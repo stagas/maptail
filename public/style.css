@@ -158,6 +158,22 @@ body {
   z-index: -1;
 }
 
+
+#bmc-wbtn {
+  right: 28px !important;
+  top: 82px !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: 40px !important;
+  height: 40px !important;
+  background-color: #FFF !important;
+
+  img {
+    width: 24px !important;
+    height: 24px !important;
+  }
+}
+
 #ip2attrib {
   position: fixed;
   bottom: 40px;
