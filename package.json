@@ -1,16 +1,15 @@
 {
   "name": "maptail",
   "version": "1.0.0",
-  "description": "show geoip data from your logs onto a world map in realtime",
+  "description": "tail geoip data on a world map in realtime",
   "main": "dist/maptail.js",
   "bin": {
     "maptail": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc",
-    "start": "bun run src/cli.ts",
-    "dev": "bun run generate-fake-logs.ts --count=50000 --rate=50/m | bun run --env-file=.env --watch src/cli.ts -- --silent",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rm -rf dist && tsc",
+    "start": "bun run generate-fake-logs.ts --rate=200/m | bun run src/cli.ts",
+    "dev": "bun run generate-fake-logs.ts --rate=200/m | bun run --watch src/cli.ts -- --silent"
   },
   "keywords": [
     "geoip",
@@ -25,6 +24,7 @@
   ],
   "dependencies": {
     "cac": "^6.7.14",
+    "db5lite": "^1.0.0",
     "hook-std": "^4.0.0",
     "ip2location-nodejs": "^9.7.0",
     "pkg-dir": "^9.0.0",

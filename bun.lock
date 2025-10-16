@@ -5,6 +5,7 @@
       "name": "geoip",
       "dependencies": {
         "cac": "^6.7.14",
+        "db5lite": "^1.0.0",
         "hook-std": "^4.0.0",
         "ip2location-nodejs": "^9.7.0",
         "pkg-dir": "^9.0.0",
@@ -29,6 +30,8 @@
     "core-util-is": ["core-util-is@1.0.3", "", {}, "sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ=="],
 
     "csv-parser": ["csv-parser@3.2.0", "", { "bin": { "csv-parser": "bin/csv-parser" } }, "sha512-fgKbp+AJbn1h2dcAHKIdKNSSjfp43BZZykXsCjzALjKy80VXQNHPFJ6T9Afwdzoj24aMkq8GwDS7KGcDPpejrA=="],
+
+    "db5lite": ["db5lite@1.0.0", "", { "dependencies": { "unzipper": "^0.12.3" } }, "sha512-s0lL5uztoAqv4CzJAywCivzM9vVGFAkRuYH+K2DlR2AMizEYPNAnf2ynKkrJpb9D8v9KwJ9vvvAjxym8oPNjVQ=="],
 
     "duplexer2": ["duplexer2@0.1.4", "", { "dependencies": { "readable-stream": "^2.0.2" } }, "sha512-asLFVfWWtJ90ZyOUHMqk7/S2w2guQKxUI2itj3d92ADHhxUSbCMGi1f1cBcJ7xM1To+pE/Khbwo1yuNbMEPKeA=="],
 

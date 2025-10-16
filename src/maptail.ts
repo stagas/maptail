@@ -8,6 +8,7 @@ import { packageDirectorySync } from 'pkg-dir'
 import unzipper from 'unzipper'
 
 const root = packageDirectorySync()
+const db5lite = 'node_modules/db5lite/db5lite'
 let hasInited = false
 
 // Extracts a .zip into a directory named after the zip (without .zip) if missing.
@@ -34,45 +35,11 @@ async function ensureExtract(zipPath: string) {
   })
 }
 
-async function fetchZips() {
-  const codes = ['DB5LITEBIN', 'DB5LITEBINIPV6']
-  for (const code of codes) {
-    const target = path.join(root, `${code}.zip`)
-    try {
-      await fsp.stat(target)
-      continue // if exists, continue
-    } catch {
-      // file doesn't exist, proceed to download
-    }
-    const url = `https://www.ip2location.com/download/?token=${process.env.IP2LOCATION_TOKEN}&file=${code}`
-    const response = await fetch(url)
-    const body = response.body
-    if (!body) throw new Error('No response body to stream')
-    const fileStream = fs.createWriteStream(target)
-    await new Promise<void>((resolve, reject) => {
-      body
-        .pipeTo(
-          new WritableStream({
-            write(chunk) {
-              fileStream.write(chunk)
-            },
-            close() {
-              fileStream.end()
-              resolve()
-            },
-            abort(err) {
-              fileStream.destroy()
-              reject(err)
-            },
-          }),
-        )
-        .catch(reject)
-    })
-  }
-}
-
 async function unzipZips() {
-  const zips = [path.join(root, 'DB5LITEBIN.zip'), path.join(root, 'DB5LITEBINIPV6.zip')]
+  const zips = [
+    path.join(root, db5lite, 'DB5LITEBIN.zip'),
+    path.join(root, db5lite, 'DB5LITEBINIPV6.zip'),
+  ]
   await Promise.all(zips.map(ensureExtract))
 }
 
@@ -111,10 +78,9 @@ async function fetchCities() {
 }
 
 // Run once on import
-console.log('[maptail] Fetching and unzipping IP2Location zips')
-await fetchZips()
+console.log('[maptail] Unzipping IP2Location zips')
 await unzipZips()
-console.log('[maptail] Fetched and unzipped IP2Location zips')
+console.log('[maptail] Unzipped IP2Location zips')
 
 console.log('[maptail] Fetching cities from Travelpayouts')
 await fetchCities()
@@ -125,8 +91,10 @@ hasInited = true
 const ip2locationIpv4 = new IP2Location()
 const ip2locationIpv6 = new IP2Location()
 
-ip2locationIpv4.open(path.join(root, 'DB5LITEBIN/IP2LOCATION-LITE-DB5.BIN'))
-ip2locationIpv6.open(path.join(root, 'DB5LITEBINIPV6/IP2LOCATION-LITE-DB5.IPV6.BIN'))
+ip2locationIpv4.open(path.join(root, db5lite, 'DB5LITEBIN/DB5LITEBIN/IP2LOCATION-LITE-DB5.BIN'))
+ip2locationIpv6.open(
+  path.join(root, db5lite, 'DB5LITEBINIPV6/DB5LITEBINIPV6/IP2LOCATION-LITE-DB5.IPV6.BIN'),
+)
 
 const ipTools = new IPTools()
 

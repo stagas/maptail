@@ -285,7 +285,7 @@ function initializeMap() {
         'border-radius:50%',
         'background:#ffff00',
         'box-shadow:0 0 0 1px rgba(255,255,0,0.25)',
-        'transform:scale(1)',
+        'transform:scale(16)',
         'transform-origin:center',
         'transition:transform 750ms ease-in',
       ].join(';')
@@ -349,14 +349,59 @@ function initializeMap() {
         }
       })
 
+      // Copy IP to clipboard on pointer down using document.execCommand('copy')
+      markerEl.addEventListener('pointerdown', () => {
+        let ta
+        try {
+          ta = document.createElement('textarea')
+          ta.value = ip || ''
+          ta.setAttribute('readonly', '')
+          ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;'
+          document.body.appendChild(ta)
+          ta.select()
+          document.execCommand('copy')
+
+          // brief toast near the marker
+          const rect = markerEl.getBoundingClientRect()
+          const toast = document.createElement('div')
+          toast.textContent = 'Copied IP'
+          toast.style.cssText = [
+            'position:fixed',
+            `left:${Math.round(rect.left + rect.width / 2)}px`,
+            `top:${Math.round(rect.bottom)}px`,
+            'transform:translate(-50%, 70%)',
+            'background:rgba(0,0,0,0.8)',
+            'color:#fff',
+            'padding:4px 8px',
+            'border-radius:6px',
+            `font:12px ${fontSpec.split(' ').slice(1).join(' ')}`,
+            'pointer-events:none',
+            'opacity:0',
+            'transition:opacity 150ms ease-out',
+            'z-index:2147483647',
+          ].join(';')
+          document.body.appendChild(toast)
+          requestAnimationFrame(() => {
+            toast.style.opacity = '1'
+            setTimeout(() => {
+              toast.style.opacity = '0'
+              setTimeout(() => {
+                if (toast.parentNode) toast.parentNode.removeChild(toast)
+              }, 180)
+            }, 2000)
+          })
+        } catch (e) {
+        } finally {
+          if (ta && ta.parentNode) ta.parentNode.removeChild(ta)
+        }
+      })
+
       // creation attention animation on inner dot: start larger, then shrink
       requestAnimationFrame(() => {
-        dot.style.transform = 'scale(16)'
         requestAnimationFrame(() => {
           dot.style.transform = 'scale(1)'
         })
       })
-
       entry = {
         marker,
         popup,

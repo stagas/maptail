@@ -225,7 +225,7 @@ async function main() {
     args.set(k.replace(/^--?/, ''), v)
   }
 
-  const count = Number(args.get('count') ?? process.env.COUNT ?? 100)
+  const count = Number(args.get('count') ?? process.env.COUNT ?? Infinity)
   const rateArg = args.get('rate') ?? process.env.RATE // examples: 10/s, 100/m
   let intervalMs = 0
   if (rateArg) {
