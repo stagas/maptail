@@ -23,4 +23,10 @@ tail -f my-logs | maptail
 - `--logs`: show logs on screen (default: true)
 - `--port <port>`: port to listen on (default: env PORT or 3000)
 
+### Attribution
 
+maptail uses the IP2Location LITE database for <a href="https://lite.ip2location.com">IP geolocation</a>.
+
+### License
+
+MIT
