@@ -48,3 +48,7 @@ maptail uses the IP2Location LITE database for <a href="https://lite.ip2location
 ### License
 
 MIT
+
+### Support
+
+<a href="https://www.buymeacoffee.com/stagas" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
