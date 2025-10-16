@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "rm -rf dist && tsc",
-    "start": "bun run generate-fake-logs.ts --rate=200/m | bun run src/cli.ts",
+    "start": "bun run generate-fake-logs.ts --rate=200/m | bun run src/cli.ts -- --silent",
     "dev": "bun run generate-fake-logs.ts --rate=200/m | bun run --watch src/cli.ts -- --silent"
   },
   "keywords": [
