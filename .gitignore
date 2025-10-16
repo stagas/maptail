@@ -1,5 +1,6 @@
 .env
 *.zip
 DB5*
+dist
 node_modules
 cities.json

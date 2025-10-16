@@ -1,23 +1,38 @@
 {
-  "name": "geoip",
+  "name": "maptail",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "show geoip data from your logs onto a world map in realtime",
+  "main": "dist/maptail.js",
+  "bin": {
+    "maptail": "dist/cli.js"
+  },
   "scripts": {
-    "start": "bun run server.ts",
-    "dev": "bun run --env-file=.env --watch server.ts",
+    "build": "tsc",
+    "start": "bun run src/cli.ts",
+    "dev": "bun run generate-fake-logs.ts --count=50000 --rate=50/m | bun run --env-file=.env --watch src/cli.ts -- --silent",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "geoip",
+    "maptail"
+  ],
+  "author": "stagas",
+  "license": "MIT",
   "type": "module",
+  "files": [
+    "dist",
+    "public"
+  ],
   "dependencies": {
+    "cac": "^6.7.14",
+    "hook-std": "^4.0.0",
     "ip2location-nodejs": "^9.7.0",
+    "pkg-dir": "^9.0.0",
     "unzipper": "^0.12.3"
   },
   "devDependencies": {
     "@types/node": "^24.7.2",
-    "@types/unzipper": "^0.10.11"
+    "@types/unzipper": "^0.10.11",
+    "typescript": "^5.9.3"
   }
 }

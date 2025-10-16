@@ -1,10 +1,14 @@
 import fs from 'fs'
 import fsp from 'fs/promises'
-import path from 'path'
+import { hookStd } from 'hook-std'
 import http from 'http'
-import unzipper from 'unzipper'
 import { IP2Location, IPTools } from 'ip2location-nodejs'
-import readline from 'readline'
+import path from 'path'
+import { packageDirectorySync } from 'pkg-dir'
+import unzipper from 'unzipper'
+
+const root = packageDirectorySync()
+let hasInited = false
 
 // Extracts a .zip into a directory named after the zip (without .zip) if missing.
 async function ensureExtract(zipPath: string) {
@@ -32,7 +36,6 @@ async function ensureExtract(zipPath: string) {
 
 async function fetchZips() {
   const codes = ['DB5LITEBIN', 'DB5LITEBINIPV6']
-  const root = import.meta.dirname
   for (const code of codes) {
     const target = path.join(root, `${code}.zip`)
     try {
@@ -69,14 +72,12 @@ async function fetchZips() {
 }
 
 async function unzipZips() {
-  const root = import.meta.dirname
   const zips = [path.join(root, 'DB5LITEBIN.zip'), path.join(root, 'DB5LITEBINIPV6.zip')]
   await Promise.all(zips.map(ensureExtract))
 }
 
 async function fetchCities() {
   const url = 'https://api.travelpayouts.com/data/en/cities.json'
-  const root = import.meta.dirname
   const target = path.join(root, 'cities.json')
   try {
     await fsp.stat(target)
@@ -110,16 +111,17 @@ async function fetchCities() {
 }
 
 // Run once on import
-console.log('Fetching and unzipping zips')
+console.log('[maptail] Fetching and unzipping IP2Location zips')
 await fetchZips()
 await unzipZips()
-console.log('Fetched and unzipped zips')
+console.log('[maptail] Fetched and unzipped IP2Location zips')
 
-console.log('Fetching cities')
+console.log('[maptail] Fetching cities from Travelpayouts')
 await fetchCities()
-console.log('Fetched cities')
+console.log('[maptail] Fetched cities from Travelpayouts')
 
-const root = import.meta.dirname
+hasInited = true
+
 const ip2locationIpv4 = new IP2Location()
 const ip2locationIpv6 = new IP2Location()
 
@@ -127,24 +129,6 @@ ip2locationIpv4.open(path.join(root, 'DB5LITEBIN/IP2LOCATION-LITE-DB5.BIN'))
 ip2locationIpv6.open(path.join(root, 'DB5LITEBINIPV6/IP2LOCATION-LITE-DB5.IPV6.BIN'))
 
 const ipTools = new IPTools()
-
-const type = {
-  name_translations: {
-    en: 'Senggo',
-  },
-  cases: {
-    su: 'Senggo',
-  },
-  country_code: 'ID',
-  code: 'ZEG',
-  time_zone: 'Asia/Jayapura',
-  name: 'Senggo',
-  coordinates: {
-    lat: -5.983333,
-    lon: 139.36667,
-  },
-  has_flightable_airport: false,
-}
 
 type City = {
   name_translations: {
@@ -216,6 +200,7 @@ async function getIpData(ip: string) {
   ])
 
   return {
+    ip,
     country,
     region,
     city,
@@ -225,75 +210,133 @@ async function getIpData(ip: string) {
   }
 }
 
-// Simple static server with SSE endpoint
+// Reusable middleware for maptail functionality
 const clients = new Set<http.ServerResponse>()
+const RECENT_CAPACITY = 50
+const recentEvents: unknown[] = []
+const recentLogs: string[] = []
 
-function writeSse(res: http.ServerResponse, event: unknown) {
+function writeSse(res: http.ServerResponse, event: unknown, eventName?: string) {
+  if (eventName) res.write(`event: ${eventName}\n`)
   res.write(`data: ${JSON.stringify(event)}\n\n`)
 }
+type Options = {
+  silent?: boolean
+  logs?: boolean
+}
+/**
+ * Creates a reusable maptail middleware that serves static files and provides SSE events
+ * under the specified base path.
+ *
+ * @param basePath - The base path under which all static files and SSE events will be served
+ * @returns A middleware function that can be used with http.createServer()
+ *
+ * @example
+ * // Serve under /maptail path
+ * const server = http.createServer(maptail('/maptail'))
+ *
+ * @example
+ * // Serve under root path
+ * const server = http.createServer(maptail('/'))
+ */
+export function maptail(basePath: string, options: Options = {}) {
+  // Ensure basePath starts with / and ends without /
+  const normalizedPath = basePath.startsWith('/') ? basePath : `/${basePath}`
+  const cleanPath = normalizedPath.endsWith('/') ? normalizedPath.slice(0, -1) : normalizedPath
 
-const server = http.createServer(async (req, res) => {
-  try {
-    if (!req.url) {
-      res.statusCode = 400
-      res.end('Bad Request')
-      return
+  const oldWrite = process.stdout.write
+  hookStd(line => {
+    if (!options.silent) oldWrite.call(process.stdout, line)
+    if (!hasInited) return
+    const ips = extractIps(line)
+    ips.forEach(emit)
+    if (options.logs) emitLog(line)
+  })
+
+  return async (req: http.IncomingMessage, res: http.ServerResponse) => {
+    try {
+      if (!req.url) {
+        res.statusCode = 400
+        res.end('Bad Request')
+        return
+      }
+
+      // Check if request is for maptail-events endpoint
+      if (req.url === `${cleanPath}/events`) {
+        req.socket.setNoDelay(true)
+        res.writeHead(200, {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          Connection: 'keep-alive',
+          'Access-Control-Allow-Origin': '*',
+        })
+        res.write(': connected\n\n')
+        clients.add(res)
+        // Replay recent geo events to new client (do not replay logs to avoid flooding UI)
+        for (const event of recentEvents) writeSse(res, event)
+        for (const log of recentLogs) writeSse(res, log, 'log')
+        req.on('close', () => {
+          clients.delete(res)
+        })
+        return
+      }
+
+      // Check if request is under our base path
+      if (!req.url.startsWith(cleanPath)) {
+        res.statusCode = 404
+        res.end('Not Found')
+        return
+      }
+
+      // Handle trailing slash redirect
+      if (req.url === cleanPath) {
+        res.writeHead(301, { Location: `${cleanPath}/` })
+        res.end()
+        return
+      }
+
+      // Remove base path from URL to get the actual file path
+      const relativePath = req.url.slice(cleanPath.length)
+      const filePath =
+        relativePath === '/' || relativePath === ''
+          ? path.join(root, 'public', 'index.html')
+          : path.join(root, 'public', relativePath.replace(/^\//, ''))
+
+      const ext = path.extname(filePath).toLowerCase()
+      const type =
+        ext === '.html'
+          ? 'text/html; charset=utf-8'
+          : ext === '.js'
+          ? 'application/javascript; charset=utf-8'
+          : ext === '.css'
+          ? 'text/css; charset=utf-8'
+          : 'application/octet-stream'
+
+      const data = await fsp.readFile(filePath)
+      res.writeHead(200, { 'Content-Type': type })
+      res.end(data)
+    } catch (err) {
+      res.statusCode = 404
+      res.end('Not Found')
     }
-
-    if (req.url === '/events') {
-      res.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        Connection: 'keep-alive',
-        'Access-Control-Allow-Origin': '*',
-      })
-      res.write(': connected\n\n')
-      clients.add(res)
-      req.on('close', () => {
-        clients.delete(res)
-      })
-      return
-    }
-
-    const filePath =
-      req.url === '/' ? path.join(root, 'index.html') : path.join(root, req.url.replace(/^\//, ''))
-
-    const ext = path.extname(filePath).toLowerCase()
-    const type =
-      ext === '.html'
-        ? 'text/html; charset=utf-8'
-        : ext === '.js'
-        ? 'application/javascript; charset=utf-8'
-        : ext === '.css'
-        ? 'text/css; charset=utf-8'
-        : 'application/octet-stream'
-
-    const data = await fsp.readFile(filePath)
-    res.writeHead(200, { 'Content-Type': type })
-    res.end(data)
-  } catch (err) {
-    res.statusCode = 404
-    res.end('Not Found')
   }
-})
-
-const PORT = Number(process.env.PORT || 3000)
-server.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`)
-})
-
-// Stream from stdin, extract unique IPs, then resolve their geo data and forward via SSE.
-const rl = readline.createInterface({ input: process.stdin, crlfDelay: Infinity })
+}
 
 export async function emit(ip: string) {
   const data = await getIpData(ip)
+  // Store in recent ring buffer
+  recentEvents.push(data)
+  if (recentEvents.length > RECENT_CAPACITY) recentEvents.shift()
   for (const client of clients) writeSse(client, data)
 }
 
-for await (const line of rl) {
-  const ips = extractIps(line)
-  await Promise.all(ips.map(emit))
+export function emitLog(line: string) {
+  recentLogs.push(line)
+  if (recentLogs.length > RECENT_CAPACITY) recentLogs.shift()
+  for (const client of clients) writeSse(client, line, 'log')
 }
 
-ip2locationIpv4.close()
-ip2locationIpv6.close()
+export function close() {
+  ip2locationIpv4.close()
+  ip2locationIpv6.close()
+}
