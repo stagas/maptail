@@ -3,8 +3,8 @@ import fsp from 'fs/promises'
 import { hookStd } from 'hook-std'
 import http from 'http'
 import { IP2Location, IPTools } from 'ip2location-nodejs'
+import { packageDirectorySync } from 'package-directory'
 import path from 'path'
-import { packageDirectorySync } from 'pkg-dir'
 import unzipper from 'unzipper'
 
 const root = packageDirectorySync()

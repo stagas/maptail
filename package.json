@@ -1,6 +1,6 @@
 {
   "name": "maptail",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "tail geoip data on a world map in realtime",
   "main": "dist/maptail.js",
   "bin": {
@@ -27,7 +27,7 @@
     "db5lite": "^1.0.0",
     "hook-std": "^4.0.0",
     "ip2location-nodejs": "^9.7.0",
-    "pkg-dir": "^9.0.0",
+    "package-directory": "^8.1.0",
     "unzipper": "^0.12.3"
   },
   "devDependencies": {

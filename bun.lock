@@ -8,7 +8,7 @@
         "db5lite": "^1.0.0",
         "hook-std": "^4.0.0",
         "ip2location-nodejs": "^9.7.0",
-        "pkg-dir": "^9.0.0",
+        "package-directory": "^8.1.0",
         "unzipper": "^0.12.3",
       },
       "devDependencies": {
@@ -53,7 +53,7 @@
 
     "node-int64": ["node-int64@0.4.0", "", {}, "sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw=="],
 
-    "pkg-dir": ["pkg-dir@9.0.0", "", { "dependencies": { "find-up-simple": "^1.0.0" } }, "sha512-BMmxOuokumBehLGYwCKMBJxpAGSBbvGTtDn1yUV9UpCAvC4F7UWHoPTGSDGPV8eQPkYq/G8b0g1W5vIc5K/EhA=="],
+    "package-directory": ["package-directory@8.1.0", "", { "dependencies": { "find-up-simple": "^1.0.0" } }, "sha512-qHKRW0pw3lYdZMQVkjDBqh8HlamH/LCww2PH7OWEp4Qrt3SFeYMNpnJrQzlSnGrDD5zGR51XqBh7FnNCdVNEHA=="],
 
     "process-nextick-args": ["process-nextick-args@2.0.1", "", {}, "sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag=="],
 
