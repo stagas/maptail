@@ -10,6 +10,112 @@ function initializeMap() {
     renderWorldCopies: false, // disable horizontal world wrapping
   })
 
+  // Track last known mouse position in viewport coords
+  let lastMouse = { x: 0, y: 0 }
+  let activeKey = null
+  let hideTimeoutId = 0
+  try {
+    const canvasEl = map.getCanvasContainer()
+    const onMouseMove = e => {
+      lastMouse = { x: e.clientX, y: e.clientY }
+      // Determine closest marker under pointer within small radius
+      let best = null
+      const radius = markerSize
+      const r2 = radius * radius
+      const EPS = 0.01
+      coordToMarker.forEach((entry, key) => {
+        const coords = entry.coords
+        if (!coords) return
+        try {
+          const p = map.project(coords)
+          const dx = lastMouse.x - p.x
+          const dy = lastMouse.y - p.y
+          const d2 = dx * dx + dy * dy
+          if (d2 > r2) return
+          if (
+            !best ||
+            d2 < best.d2 - EPS ||
+            (Math.abs(d2 - best.d2) <= EPS && (entry.createdAt || 0) > (best.createdAt || 0))
+          ) {
+            best = { key, d2, createdAt: entry.createdAt || 0 }
+          }
+        } catch (e) {}
+      })
+
+      // If pointer is over some marker
+      const bestKey = best && best.key
+      if (bestKey) {
+        if (hideTimeoutId) {
+          clearTimeout(hideTimeoutId)
+          hideTimeoutId = 0
+        }
+        if (activeKey === bestKey) return
+        const prevKey = activeKey
+        activeKey = bestKey
+        const current = coordToMarker.get(bestKey)
+        if (current && current.popup) {
+          // Ensure image is loaded
+          if (current.popupContent && current.popupContent._loadImage) {
+            current.popupContent._loadImage()
+          }
+          try {
+            current.popup.setLngLat(current.coords)
+            current.popup.addTo(map)
+            const popupEl = current.popup.getElement()
+            if (popupEl) popupEl.classList.add('fade-in')
+          } catch (e) {}
+        }
+        // Close previous if different
+        if (prevKey && prevKey !== bestKey) {
+          const prev = coordToMarker.get(prevKey)
+          if (prev && prev.popup) {
+            try {
+              const popupEl = prev.popup.getElement()
+              if (popupEl) {
+                popupEl.classList.remove('fade-in')
+                setTimeout(() => {
+                  prev.popup && prev.popup.remove()
+                }, 120)
+              } else {
+                prev.popup.remove()
+              }
+            } catch (e) {}
+          }
+        }
+        return
+      }
+
+      // Not over any marker: schedule hide of active popup
+      if (activeKey && !hideTimeoutId) {
+        const keyToHide = activeKey
+        const delayMs = 150
+        hideTimeoutId = setTimeout(() => {
+          hideTimeoutId = 0
+          // If we moved back over the same marker, keep it
+          const entry = coordToMarker.get(keyToHide)
+          if (entry && isMouseOverLngLat(entry.coords, markerSize)) return
+          if (activeKey !== keyToHide) return
+          const prev = coordToMarker.get(keyToHide)
+          if (prev && prev.popup) {
+            try {
+              const popupEl = prev.popup.getElement()
+              if (popupEl) {
+                popupEl.classList.remove('fade-in')
+                setTimeout(() => {
+                  prev.popup && prev.popup.remove()
+                }, 120)
+              } else {
+                prev.popup.remove()
+              }
+            } catch (e) {}
+          }
+          activeKey = null
+        }, delayMs)
+      }
+    }
+    canvasEl.addEventListener('mousemove', onMouseMove, { passive: true })
+  } catch (e) {}
+
   // Keep track of markers keyed by lng,lat to avoid duplicates
   const coordToMarker = new Map()
   const MAX_MARKERS = 200
@@ -39,6 +145,19 @@ function initializeMap() {
   const bgColor = 'rgba(16,16,20,0.65)'
   const borderColor = 'rgba(255,255,255,0.07)'
   const textColor = '#e8e8eb'
+
+  // Check if the mouse is still hovering near given lng/lat (screen-space)
+  function isMouseOverLngLat(lngLat, radiusPx = markerSize) {
+    try {
+      const p = map.project(lngLat)
+      const dx = lastMouse.x - p.x
+      const dy = lastMouse.y - p.y
+      const r = radiusPx // tolerance radius in px
+      return dx * dx + dy * dy <= r * r
+    } catch (e) {
+      return false
+    }
+  }
 
   function resizeCanvas() {
     if (!overlayCanvas || !ctx) return
@@ -308,48 +427,10 @@ function initializeMap() {
       popup.setDOMContent(popupContent)
       popup.setLngLat(coords)
 
-      // Add hover events
-      const markerEl = marker.getElement()
-      markerEl.addEventListener('mouseenter', () => {
-        console.log('Mouse enter on marker:', key)
-        // Load image when popup opens
-        if (popupContent._loadImage) {
-          popupContent._loadImage()
-        }
-        try {
-          popup.addTo(map)
-          // Add fade-in class to make popup visible
-          const popupEl = popup.getElement()
-          if (popupEl) {
-            popupEl.classList.add('fade-in')
-          }
-          console.log('Popup added to map')
-        } catch (e) {
-          console.error('Error adding popup to map:', e)
-        }
-      })
-      markerEl.addEventListener('mouseleave', () => {
-        console.log('Mouse leave on marker:', key)
-        try {
-          // Fade out before removing
-          const popupEl = popup.getElement()
-          if (popupEl) {
-            popupEl.classList.remove('fade-in')
-            // Wait for fade-out animation to complete before removing
-            setTimeout(() => {
-              popup.remove()
-              console.log('Popup removed from map')
-            }, 120) // Match CSS transition duration
-          } else {
-            popup.remove()
-            console.log('Popup removed from map')
-          }
-        } catch (e) {
-          console.error('Error removing popup from map:', e)
-        }
-      })
+      // No per-marker mouse listeners; popup visibility controlled globally
 
       // Copy IP to clipboard on pointer down using document.execCommand('copy')
+      const markerEl = marker.getElement()
       markerEl.addEventListener('pointerdown', () => {
         let ta
         try {
@@ -405,6 +486,7 @@ function initializeMap() {
       entry = {
         marker,
         popup,
+        popupContent,
         el: marker.getElement(),
         createdAt: Date.now(),
         coords,
