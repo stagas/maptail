@@ -1,4 +1,4 @@
-### maptail
+# maptail
 
 Tail GeoIP data on a world map in realtime.
 
