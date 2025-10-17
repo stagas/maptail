@@ -7,8 +7,12 @@ import { packageDirectorySync } from 'package-directory'
 import path from 'path'
 import unzipper from 'unzipper'
 
-const root = packageDirectorySync()
-const db5lite = 'node_modules/db5lite/db5lite'
+const root = packageDirectorySync({ cwd: import.meta.dirname })
+const db5lite = path.join(
+  path.dirname(import.meta.resolve('db5lite/package.json')).slice(7),
+  'db5lite',
+)
+
 let hasInited = false
 
 // Extracts a .zip into a directory named after the zip (without .zip) if missing.
@@ -36,10 +40,7 @@ async function ensureExtract(zipPath: string) {
 }
 
 async function unzipZips() {
-  const zips = [
-    path.join(root, db5lite, 'DB5LITEBIN.zip'),
-    path.join(root, db5lite, 'DB5LITEBINIPV6.zip'),
-  ]
+  const zips = [path.join(db5lite, 'DB5LITEBIN.zip'), path.join(db5lite, 'DB5LITEBINIPV6.zip')]
   await Promise.all(zips.map(ensureExtract))
 }
 
@@ -91,9 +92,9 @@ hasInited = true
 const ip2locationIpv4 = new IP2Location()
 const ip2locationIpv6 = new IP2Location()
 
-ip2locationIpv4.open(path.join(root, db5lite, 'DB5LITEBIN/DB5LITEBIN/IP2LOCATION-LITE-DB5.BIN'))
+ip2locationIpv4.open(path.join(db5lite, 'DB5LITEBIN/DB5LITEBIN/IP2LOCATION-LITE-DB5.BIN'))
 ip2locationIpv6.open(
-  path.join(root, db5lite, 'DB5LITEBINIPV6/DB5LITEBINIPV6/IP2LOCATION-LITE-DB5.IPV6.BIN'),
+  path.join(db5lite, 'DB5LITEBINIPV6/DB5LITEBINIPV6/IP2LOCATION-LITE-DB5.IPV6.BIN'),
 )
 
 const ipTools = new IPTools()
