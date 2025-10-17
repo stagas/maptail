@@ -222,9 +222,14 @@ export function maptail(basePath: string, options: Options = {}) {
     if (options.logs) emitLog(line)
   })
 
-  return async (req: http.IncomingMessage, res: http.ServerResponse) => {
+  return async (
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    next?: (err?: unknown) => void,
+  ) => {
     try {
       if (!req.url) {
+        if (next) return next()
         res.statusCode = 400
         res.end('Bad Request')
         return
@@ -252,6 +257,7 @@ export function maptail(basePath: string, options: Options = {}) {
 
       // Check if request is under our base path
       if (!req.url.startsWith(cleanPath)) {
+        if (next) return next()
         res.statusCode = 404
         res.end('Not Found')
         return
@@ -285,6 +291,7 @@ export function maptail(basePath: string, options: Options = {}) {
       res.writeHead(200, { 'Content-Type': type })
       res.end(data)
     } catch (err) {
+      if (next) return next(err)
       res.statusCode = 404
       res.end('Not Found')
     }
